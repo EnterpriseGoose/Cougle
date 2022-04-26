@@ -1,0 +1,34 @@
+@import '../../global/style/style-variables.scss';
+
+:host {
+    display: inline-block;
+}
+
+.tile {
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    line-height: 1rem;
+    font-weight: bold;
+    vertical-align: middle;
+    box-sizing: border-box;
+    color: var(--tile-text-color);
+    text-transform: uppercase;
+    user-select: none;
+    margin-right: 5px;
+}
+
+.tile::before {
+    content: '';
+    display: inline-block;
+}
+
+/* Allow tiles to be smaller on small screens */
+/*@media (max-height: 600px) {
+    .tile {
+        font-size: 2em;
+        line-height: 1em;
+    }
+}*/
