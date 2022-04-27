@@ -1,6 +1,7 @@
 const firebaseConfig = {
   apiKey: "AIzaSyB-WLxU1J_6kYfB4zkTiQ1NtrLv6c-Mj5I",
   authDomain: "cougle.firebaseapp.com",
+  databaseURL: "https://cougle-default-rtdb.firebaseio.com/",
   projectId: "cougle",
   storageBucket: "cougle.appspot.com",
   messagingSenderId: "728051216283",

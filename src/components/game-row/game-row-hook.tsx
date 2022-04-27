@@ -6,7 +6,7 @@ import {
   KEYBOARD,
   KEY_STATE,
   MESSAGE,
-  SETTING
+  SETTING,
 } from "../../global/global";
 import { gameWords } from "../../global/game-words";
 import { answerWords } from "../../global/answer-words";
@@ -15,11 +15,11 @@ import {
   findDateDiff,
   isEvent,
   isValidChar,
-  removeByAttr
+  removeByAttr,
 } from "./game-row-helper";
 import { IKeyBoardEvent } from "./game-row-interface";
 import { IScoreInterface } from "./scores-interface";
-import { getDoc, doc, updateDoc, increment } from "@firebase/firestore";
+import { get, ref, update, increment } from "@firebase/database";
 
 var words = gameWords;
 
@@ -29,10 +29,10 @@ async function getLatestPlay(props: IScoreInterface, date = new Date()) {
   const previousMonday = new Date();
 
   previousMonday.setDate(date.getDate() - ((date.getDay() + 6) % 7));
-  const ref = doc(db, "users", uid);
-  const docSnap = await getDoc(ref);
-  const lastPlayed = docSnap.get("lastPlayed");
-  const lastWeekPlayed = docSnap.get("lastWeekPlayed");
+  const userRef = ref(db, "users/" + uid);
+  const docSnap = (await get(userRef)).val();
+  const lastPlayed = docSnap.lastPlayed;
+  const lastWeekPlayed = docSnap.lastWeekPlayed;
   const thisWeek = Math.floor(
     (Date.UTC(
       new Date().getFullYear(),
@@ -49,11 +49,11 @@ async function getLatestPlay(props: IScoreInterface, date = new Date()) {
   if (lastPlayed && lastWeekPlayed && lastWeekPlayed !== thisWeek) {
     var yesterday = new Date(previousMonday);
     yesterday.setDate(date.getDate() - 1);
-    await updateDoc(ref, {
+    await update(userRef, {
       week: 0,
       lastWeekPlayed: thisWeek,
       lastPlayed: yesterday.setHours(0, 0, 0, 0).toString(),
-      lastLoggedIn: previousMonday.setHours(0, 0, 0, 0).toString()
+      lastLoggedIn: previousMonday.setHours(0, 0, 0, 0).toString(),
     });
     /*await updateDoc(doc(db, 'data', 'leaderboard'), {
       [uid]: {
@@ -75,9 +75,9 @@ async function addScore(
 ) {
   const { db, uid } = props;
   if (!uid) return;
-  const ref = doc(db, "users", uid);
-  const docSnap = await getDoc(ref);
-  const lastPlayed = docSnap.get("lastPlayed");
+  const userRef = ref(db, "users/" + uid);
+  const docSnap = (await get(userRef)).val();
+  const lastPlayed = docSnap.lastPlayed;
   //if already played today, don't add
   if (lastPlayed) {
     if (new Date().setHours(0, 0, 0, 0) === parseInt(lastPlayed, 10)) {
@@ -94,10 +94,10 @@ async function addScore(
     const todayDate = new Date().toString();
     const dateoftheday = new Date(todayDate).setHours(0, 0, 0, 0);
     if (tryCount + 1 > 0) {
-      await updateDoc(ref, {
+      await update(userRef, {
         week: increment(tryCount + 1),
         lastPlayed: dateoftheday.toString(),
-        lastLoggedIn: dateoftheday.toString()
+        lastLoggedIn: dateoftheday.toString(),
       });
       /*(await updateDoc(doc(db, 'data', 'leaderboard'), {
         [uid]: {
@@ -121,9 +121,8 @@ const useGameRowHook = (props: IScoreInterface) => {
   const initialStates = Array.from(Array(SETTING.COUNT_OF_TRY), () =>
     new Array(SETTING.LENGTH_OF_WORD).fill(KEY_STATE.EMPTY)
   );
-  const [guessedWords, setGuessedWords]: Array<any> = useState(
-    initialGuessedWords
-  );
+  const [guessedWords, setGuessedWords]: Array<any> =
+    useState(initialGuessedWords);
   const [states, setStates]: any = useState(initialStates);
   const [animations, setAnimations]: any = useState(
     Array.from(Array(SETTING.COUNT_OF_TRY), () =>
@@ -145,7 +144,7 @@ const useGameRowHook = (props: IScoreInterface) => {
     "number",
     "gameFinished",
     "animations",
-    "lastWordGuessed"
+    "lastWordGuessed",
   ]);
   const todayDate = new Date().setHours(0, 0, 0, 0).toString();
   const [word, setWord]: any = useState("");
@@ -177,10 +176,10 @@ const useGameRowHook = (props: IScoreInterface) => {
           lastPlayed,
           new Date().setHours(0, 0, 0, 0)
         );
-        const missedScore = missedDays * 7;
+        const missedScore = (missedDays - 1) * 7;
         if (!uid) return;
-        const ref = doc(db, "users", uid);
-        const docSnap = await getDoc(ref);
+        const userRef = ref(db, "users/" + uid);
+        const docSnap = (await get(userRef)).val();
         const lastLoggedIn = docSnap.get("lastLoggedIn");
         const dateoftheday = new Date().setHours(0, 0, 0, 0);
         //const dateoftheday = new Date(todayDate).setHours(0, 0, 0, 0);
@@ -191,16 +190,10 @@ const useGameRowHook = (props: IScoreInterface) => {
           lastLoggedIn !== dateoftheday.toString() &&
           missedScore >= 7
         ) {
-          await updateDoc(ref, {
+          await update(userRef, {
             week: increment(missedScore),
-            lastLoggedIn: dateoftheday.toString()
+            lastLoggedIn: dateoftheday.toString(),
           });
-          // await updateDoc(doc(db, 'data', 'leaderboard'), {
-          //   [uid]: {
-          //     name: docSnap.get('name'),
-          //     week: docSnap.get('week') + missedScore,
-          //   },
-          // });
         }
       }
     }
@@ -246,7 +239,7 @@ const useGameRowHook = (props: IScoreInterface) => {
     gameFinished,
     removeCookie,
     setCookie,
-    todayDate
+    todayDate,
   ]);
 
   const splitedWord = word?.split("");
@@ -330,7 +323,7 @@ const useGameRowHook = (props: IScoreInterface) => {
               guessedWords,
               tryCount,
               keyState,
-              i
+              i,
             });
           }
           setTimeout(
@@ -344,7 +337,7 @@ const useGameRowHook = (props: IScoreInterface) => {
                   );
                   selectedLetters.push({
                     letter: guessedWords[tryCount][i],
-                    state: keyState
+                    state: keyState,
                   });
                 }
               );
@@ -435,8 +428,8 @@ const useGameRowHook = (props: IScoreInterface) => {
       guessedWords,
       message,
       selectedLetters,
-      isFinished
-    }
+      isFinished,
+    },
   ];
 };
 export default useGameRowHook;
