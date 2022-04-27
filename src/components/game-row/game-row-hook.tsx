@@ -55,13 +55,6 @@ async function getLatestPlay(props: IScoreInterface, date = new Date()) {
       lastPlayed: yesterday.setHours(0, 0, 0, 0).toString(),
       lastLoggedIn: previousMonday.setHours(0, 0, 0, 0).toString(),
     });
-    /*await updateDoc(doc(db, 'data', 'leaderboard'), {
-      [uid]: {
-        name: docSnap.get('name'),
-        week: 0,
-        lastPlayed: yesterday.setHours(0, 0, 0, 0).toString(),
-      },
-    });*/
     return previousMonday;
   } else {
     return lastPlayed;
@@ -99,13 +92,6 @@ async function addScore(
         lastPlayed: dateoftheday.toString(),
         lastLoggedIn: dateoftheday.toString(),
       });
-      /*(await updateDoc(doc(db, 'data', 'leaderboard'), {
-        [uid]: {
-          name: docSnap.get('name'),
-          week: docSnap.get('week') + tryCount + 1,
-          lastPlayed: dateoftheday.toString(),
-        },
-      });*/
       setFinish(true);
     }
   }
