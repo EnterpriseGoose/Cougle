@@ -5,8 +5,7 @@ import Header from "./components/header/header";
 import Leaderboard from "./components/leaderboard/leaderboard";
 import "./App.scss";
 import "./global/style/style-variables.scss";
-import { getDatabase } from "firebase/database";
-import { get, ref, set } from "firebase/database";
+import { getDatabase, update, get, ref } from "firebase/database";
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import {
@@ -75,25 +74,30 @@ const SignIn = async (setUID: React.Dispatch<React.SetStateAction<string>>) => {
           missedScore = 0;
         }
         if (!docSnap.exists()) {
-          set(userRef, {
-            name: profile.displayName,
-            week: missedScore,
-            lastWeekPlayed: Math.floor(
-              (Date.UTC(
-                new Date().getFullYear(),
-                new Date().getMonth(),
-                new Date().getDate()
-              ) -
-                Date.UTC(new Date().getFullYear(), 0, 0)) /
-                1000 /
-                60 /
-                60 /
-                24 /
-                7
-            ),
-            lastPlayed: yesterday.setHours(0, 0, 0, 0).toString(),
-            lastLoggedIn: new Date().setHours(0, 0, 0, 0).toString(),
-          });
+          console.log("creating user");
+          console.log(
+            update(ref(db, "users"), {
+              [currentUID]: {
+                name: profile.displayName,
+                week: missedScore,
+                lastWeekPlayed: Math.floor(
+                  (Date.UTC(
+                    new Date().getFullYear(),
+                    new Date().getMonth(),
+                    new Date().getDate()
+                  ) -
+                    Date.UTC(new Date().getFullYear(), 0, 0)) /
+                    1000 /
+                    60 /
+                    60 /
+                    24 /
+                    7
+                ),
+                lastPlayed: yesterday.setHours(0, 0, 0, 0).toString(),
+                lastLoggedIn: new Date().setHours(0, 0, 0, 0).toString(),
+              },
+            })
+          );
         }
       });
     }
