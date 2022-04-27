@@ -76,26 +76,24 @@ const SignIn = async (setUID: React.Dispatch<React.SetStateAction<string>>) => {
         if (!docSnap.exists()) {
           console.log("creating user");
           console.log(
-            update(ref(db, "users"), {
-              [currentUID]: {
-                name: profile.displayName,
-                week: missedScore,
-                lastWeekPlayed: Math.floor(
-                  (Date.UTC(
-                    new Date().getFullYear(),
-                    new Date().getMonth(),
-                    new Date().getDate()
-                  ) -
-                    Date.UTC(new Date().getFullYear(), 0, 0)) /
-                    1000 /
-                    60 /
-                    60 /
-                    24 /
-                    7
-                ),
-                lastPlayed: yesterday.setHours(0, 0, 0, 0).toString(),
-                lastLoggedIn: new Date().setHours(0, 0, 0, 0).toString(),
-              },
+            update(userRef, {
+              name: profile.displayName,
+              week: missedScore,
+              lastWeekPlayed: Math.floor(
+                (Date.UTC(
+                  new Date().getFullYear(),
+                  new Date().getMonth(),
+                  new Date().getDate()
+                ) -
+                  Date.UTC(new Date().getFullYear(), 0, 0)) /
+                  1000 /
+                  60 /
+                  60 /
+                  24 /
+                  7
+              ),
+              lastPlayed: yesterday.setHours(0, 0, 0, 0).toString(),
+              lastLoggedIn: new Date().setHours(0, 0, 0, 0).toString(),
             })
           );
         }
