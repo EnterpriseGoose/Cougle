@@ -190,16 +190,10 @@ const useGameRowHook = (props: IScoreInterface) => {
           lastLoggedIn !== dateoftheday.toString() &&
           missedScore >= 7
         ) {
-          await updateDoc(ref, {
+          await update(userRef, {
             week: increment(missedScore),
             lastLoggedIn: dateoftheday.toString(),
           });
-          // await updateDoc(doc(db, 'data', 'leaderboard'), {
-          //   [uid]: {
-          //     name: docSnap.get('name'),
-          //     week: docSnap.get('week') + missedScore,
-          //   },
-          // });
         }
       }
     }
