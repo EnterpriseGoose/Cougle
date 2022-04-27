@@ -1,14 +1,8 @@
-import {
-  collection,
-  Firestore,
-  getDocs,
-  orderBy,
-  query,
-  where,
-} from '@firebase/firestore';
-import { useEffect, useState } from 'react';
-import { ILeaderboard } from './leaderboard-interface';
-import './leaderboard.scss';
+import { ref, get, onValue, query, orderByChild } from "@firebase/database";
+import { equalTo } from "firebase/database";
+import { useEffect, useState } from "react";
+import { ILeaderboard } from "./leaderboard-interface";
+import "./leaderboard.scss";
 
 async function updatePlayersFromObject(
   playersData: Object,
@@ -17,39 +11,18 @@ async function updatePlayersFromObject(
 ) {
   const playersList: {
     name: string;
-    score: string;
+    score: number;
     currentUser: boolean;
-  }[] = Array.from(
-    Object.entries(playersData || {}).filter(
-      ([id, doc]) =>
-        doc.lastPlayed === new Date().setHours(0, 0, 0, 0).toString()
-    ),
-    ([id, doc]) => {
-      return {
-        name: doc.name,
-        score: doc.week,
-        currentUser: id === uid,
-      };
-    }
-  );
+  }[] = Array.from(Object.entries(playersData || {}), ([id, doc]) => {
+    return {
+      name: doc.name,
+      score: parseInt(doc.week),
+      currentUser: id === uid,
+    };
+  });
 
+  playersList.sort((a, b) => a.score - b.score);
   setPlayers(playersList);
-}
-
-async function updatePlayers(db: Firestore, uid: string, setPlayers: any) {
-  //const docSnap = await getDoc(doc(db, 'data', 'leaderboard'));
-  //updatePlayersFromObject(docSnap.data() || {}, setPlayers, uid);
-  const docsSnap = await getDocs(
-    query(
-      collection(db, 'users'),
-      where('lastPlayed', '==', new Date().setHours(0, 0, 0, 0).toString()),
-      orderBy('week')
-    )
-  );
-  const docsData = Object.fromEntries(
-    Array.from(docsSnap.docs, docSnap => [docSnap.id, docSnap.data()])
-  );
-  updatePlayersFromObject(docsData || {}, setPlayers, uid);
 }
 
 const Leaderboard = (props: ILeaderboard) => {
@@ -58,16 +31,24 @@ const Leaderboard = (props: ILeaderboard) => {
     { name: string; score: string; currentUser: boolean }[],
     React.Dispatch<React.SetStateAction<never[]>>
   ] = useState([]);
-  const [cooldown, setCooldown] = useState(0);
+  //const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
-    setTimeout(() => {
-      updatePlayers(db, uid, setPlayers);
-    }, 1000);
+    const usersQuery = query(
+      ref(db, "users"),
+      orderByChild("lastPlayed"),
+      equalTo(new Date().setHours(0, 0, 0, 0).toString())
+    );
 
-    //onSnapshot(doc(db, 'data', 'leaderboard'), docSnap => {
-    //  updatePlayersFromObject(docSnap.data() || {}, setPlayers, uid);
-    //});
+    async function initialUpdate() {
+      const docSnap = await get(usersQuery);
+      updatePlayersFromObject(docSnap.val() || {}, setPlayers, uid);
+    }
+    initialUpdate();
+
+    onValue(usersQuery, (docSnap) => {
+      updatePlayersFromObject(docSnap.val() || {}, setPlayers, uid);
+    });
   }, []);
 
   let position = 0;
@@ -77,35 +58,35 @@ const Leaderboard = (props: ILeaderboard) => {
     <div className="leaderboard">
       <div className="leaderboard-title">
         <p>Leaderboard</p>
-        <div
+        {/*<div
           onClick={() => {
             if (cooldown + 5000 < new Date().getTime()) {
               updatePlayers(db, uid, setPlayers);
               document
-                .getElementsByClassName('refresh-button')[0]
+                .getElementsByClassName("refresh-button")[0]
                 .animate(
-                  [{ transform: 'rotate(0)' }, { transform: 'rotate(360deg)' }],
-                  { duration: 1000, iterations: 1, easing: 'ease-in-out' }
+                  [{ transform: "rotate(0)" }, { transform: "rotate(360deg)" }],
+                  { duration: 1000, iterations: 1, easing: "ease-in-out" }
                 );
               setCooldown(new Date().getTime());
             } else {
               document
-                .getElementsByClassName('refresh-button')[0]
+                .getElementsByClassName("refresh-button")[0]
                 .animate(
                   [
-                    { transform: 'translateX(0px)' },
-                    { transform: 'translateX(5px)' },
-                    { transform: 'translateX(-5px)' },
-                    { transform: 'translateX(5px)' },
-                    { transform: 'translateX(-5px)' },
-                    { transform: 'translateX(5px)' },
-                    { transform: 'translateX(-5px)' },
-                    { transform: 'translateX(0px)' },
+                    { transform: "translateX(0px)" },
+                    { transform: "translateX(5px)" },
+                    { transform: "translateX(-5px)" },
+                    { transform: "translateX(5px)" },
+                    { transform: "translateX(-5px)" },
+                    { transform: "translateX(5px)" },
+                    { transform: "translateX(-5px)" },
+                    { transform: "translateX(0px)" },
                   ],
                   {
                     duration: 750,
                     iterations: 1,
-                    easing: 'ease-in-out',
+                    easing: "ease-in-out",
                   }
                 );
             }
@@ -127,7 +108,7 @@ const Leaderboard = (props: ILeaderboard) => {
               <path d="M49 -2L49 38L69 18L49 -2" fill="#e6e6e6"></path>
             </g>
           </svg>
-        </div>
+        </div>*/}
       </div>
       <div className="leaderboard-column-titles">
         <div>Place</div>
@@ -135,10 +116,10 @@ const Leaderboard = (props: ILeaderboard) => {
         <div>Score</div>
       </div>
       {players.length > 0 &&
-        players.map(player => {
-          let positionClass = '';
+        players.map((player) => {
+          let positionClass = "";
           if (position < 4) {
-            positionClass += 'top3 ';
+            positionClass += "top3 ";
           }
           if (parseInt(player.score, 10) === score) {
             positionClass += `position-${position}`;
@@ -153,7 +134,7 @@ const Leaderboard = (props: ILeaderboard) => {
           return (
             <div
               className={`leaderboard-spot ${
-                player.currentUser ? 'current-user' : ''
+                player.currentUser ? "current-user" : ""
               } ${positionClass}`}
             >
               <div>{position}</div>
