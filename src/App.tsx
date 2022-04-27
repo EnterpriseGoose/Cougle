@@ -138,78 +138,10 @@ function App() {
     }, 2000);
   }, []);
   return (
-    <div
-      id="game"
-      onFocus={() => {
-        document.getElementById("game-container")?.focus();
-      }}
-      onMouseEnter={() => {
-        document.getElementById("game-container")?.focus();
-      }}
-      onClick={() => {
-        document.getElementById("game-container")?.focus();
-      }}
-    >
-      {onAuthStateChanged(auth, (user) => {
-        if (user && user.email && user.email.includes("@chatham-nj.org")) {
-          setLoading(false);
-          setUser(true);
-          setUID(user.uid);
-        } else {
-          setUser(false);
-        }
-      })}
-
-      <Header setDark={setDark} />
-      {!isUser && !UID && !loading && (
-        <button
-          onClick={() => {
-            SignIn(setUID);
-          }}
-          className="signIn"
-        >
-          Sign In To Cougle
-        </button>
-      )}
-      {(loading || (isUser && !UID)) && (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="xMidYMid"
-          className="loading-spinner"
-        >
-          <circle
-            cx="50"
-            cy="50"
-            r="35"
-            stroke-dasharray="164.93361431346415 56.97787143782138"
-          >
-            <animateTransform
-              attributeName="transform"
-              type="rotate"
-              repeatCount="indefinite"
-              dur="2s"
-              values="0 50 50;360 50 50"
-              keyTimes="0;1"
-            ></animateTransform>
-          </circle>
-        </svg>
-      )}
-      {isUser && UID && !loading && (
-        <GameRow
-          db={db}
-          uid={UID}
-          setPlayToday={setPlayToday}
-          playToday={playToday}
-          setIsFinished={setIsFinished}
-        />
-      )}
-      {isUser && isFinished && !loading && <Leaderboard uid={UID} db={db} />}
-    </div>
-    // <>
-    //   <div className="renomessage"> Cougle is Under Renovations </div>
-    //   <div className="renomessage"> Check it out on 4/25</div>
-    // </>
+    <>
+      <div className="renomessage"> Cougle is Under Renovations </div>
+      <div className="renomessage"> Check it out on 4/25</div>
+    </>
   );
 }
 export default App;
