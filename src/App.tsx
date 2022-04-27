@@ -140,7 +140,7 @@ function App() {
   return (
     <>
       <div className="renomessage"> Cougle is Under Renovations </div>
-      <div className="renomessage"> Check it out on 4/25</div>
+      <div className="renomessage"> Check it out later today (~10:40AM)</div>
     </>
   );
 }
