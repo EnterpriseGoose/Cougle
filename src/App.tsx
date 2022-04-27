@@ -1,22 +1,22 @@
-import { useCookies } from 'react-cookie';
-import { useEffect, useState } from 'react';
-import GameRow from './components/game-row/game-row';
-import Header from './components/header/header';
-import Leaderboard from './components/leaderboard/leaderboard';
-import './App.scss';
-import './global/style/style-variables.scss';
-import { getFirestore } from 'firebase/firestore';
-import { getDoc, doc, setDoc } from 'firebase/firestore';
+import { useCookies } from "react-cookie";
+import { useEffect, useState } from "react";
+import GameRow from "./components/game-row/game-row";
+import Header from "./components/header/header";
+import Leaderboard from "./components/leaderboard/leaderboard";
+import "./App.scss";
+import "./global/style/style-variables.scss";
+import { getDatabase } from "firebase/database";
+import { get, ref, set } from "firebase/database";
 // Import the functions you need from the SDKs you need
-import { initializeApp } from 'firebase/app';
+import { initializeApp } from "firebase/app";
 import {
   getAuth,
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
-} from 'firebase/auth';
-import firebaseConfig from './components/game/helper';
-import { findDateDiff } from './components/game-row/game-row-helper';
+} from "firebase/auth";
+import firebaseConfig from "./components/game/helper";
+import { findDateDiff } from "./components/game-row/game-row-helper";
 
 //HELLO THERE! If you are in my code, that means you know how to access it
 //through developer tools. This gives you access to a lot of things that you're
@@ -37,7 +37,7 @@ import { findDateDiff } from './components/game-row/game-row-helper';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const db = getDatabase(app);
 const auth = getAuth();
 const provider = new GoogleAuthProvider();
 
@@ -48,15 +48,15 @@ const SignIn = async (setUID: React.Dispatch<React.SetStateAction<string>>) => {
     // The signed-in user info.
     const user = result.user;
     if (user) {
-      user.providerData.forEach(async profile => {
-        if (profile.email && !profile.email.endsWith('@chatham-nj.org')) {
-          alert('Please use an @chatham-nj.org email address. Thank you!');
+      user.providerData.forEach(async (profile) => {
+        if (profile.email && !profile.email.endsWith("@chatham-nj.org")) {
+          alert("Please use an @chatham-nj.org email address. Thank you!");
           return;
         }
         const currentUID = user.uid;
         setUID(currentUID);
-        const ref = doc(db, 'users', currentUID);
-        const docSnap = await getDoc(ref);
+        const userRef = ref(db, "users/" + currentUID);
+        const docSnap = await get(userRef);
         const today = new Date();
         const yesterday = new Date(today);
 
@@ -75,7 +75,7 @@ const SignIn = async (setUID: React.Dispatch<React.SetStateAction<string>>) => {
           missedScore = 0;
         }
         if (!docSnap.exists()) {
-          setDoc(ref, {
+          set(userRef, {
             name: profile.displayName,
             week: missedScore,
             lastWeekPlayed: Math.floor(
@@ -98,40 +98,40 @@ const SignIn = async (setUID: React.Dispatch<React.SetStateAction<string>>) => {
       });
     }
   } catch (error) {
-    alert('signInError');
+    alert("signInError");
   }
 };
 
 function App() {
-  const [UID, setUID] = useState('');
+  const [UID, setUID] = useState("");
   const [isFinished, setIsFinished] = useState<boolean>(false);
   const [darkMode, setDark] = useState(false);
   var [isUser, setUser] = useState(false);
   const [playToday, setPlayToday] = useState(false);
   const [cookies, setCookie, removeCookie] = useCookies([
-    'states',
-    'guessedWords',
-    'selectedLetters',
-    'tryCount',
-    'number',
-    'gameFinished',
-    'animations',
-    'lastWordGuessed',
+    "states",
+    "guessedWords",
+    "selectedLetters",
+    "tryCount",
+    "number",
+    "gameFinished",
+    "animations",
+    "lastWordGuessed",
   ]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     if (
       cookies.lastWordGuessed !== new Date().setHours(0, 0, 0, 0).toString()
     ) {
-      removeCookie('guessedWords');
-      removeCookie('states');
-      removeCookie('selectedLetters');
-      removeCookie('tryCount');
-      removeCookie('number');
-      removeCookie('gameFinished');
-      removeCookie('animations');
-      removeCookie('lastWordGuessed');
-      setCookie('lastWordGuessed', new Date().setHours(0, 0, 0, 0).toString());
+      removeCookie("guessedWords");
+      removeCookie("states");
+      removeCookie("selectedLetters");
+      removeCookie("tryCount");
+      removeCookie("number");
+      removeCookie("gameFinished");
+      removeCookie("animations");
+      removeCookie("lastWordGuessed");
+      setCookie("lastWordGuessed", new Date().setHours(0, 0, 0, 0).toString());
     }
     setTimeout(() => {
       setLoading(false);
@@ -141,17 +141,17 @@ function App() {
     <div
       id="game"
       onFocus={() => {
-        document.getElementById('game-container')?.focus();
+        document.getElementById("game-container")?.focus();
       }}
       onMouseEnter={() => {
-        document.getElementById('game-container')?.focus();
+        document.getElementById("game-container")?.focus();
       }}
       onClick={() => {
-        document.getElementById('game-container')?.focus();
+        document.getElementById("game-container")?.focus();
       }}
     >
-      {onAuthStateChanged(auth, user => {
-        if (user && user.email && user.email.includes('@chatham-nj.org')) {
+      {onAuthStateChanged(auth, (user) => {
+        if (user && user.email && user.email.includes("@chatham-nj.org")) {
           setLoading(false);
           setUser(true);
           setUID(user.uid);

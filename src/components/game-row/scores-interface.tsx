@@ -1,7 +1,7 @@
-import { Firestore } from '@firebase/firestore';
+import { Database } from "@firebase/database";
 
 export interface IScoreInterface {
-  db: Firestore;
+  db: Database;
   uid: string;
   setPlayToday: React.Dispatch<React.SetStateAction<boolean>>;
   playToday: boolean;
