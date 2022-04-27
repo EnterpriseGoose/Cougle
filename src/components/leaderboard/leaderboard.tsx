@@ -46,8 +46,25 @@ const Leaderboard = (props: ILeaderboard) => {
     }
     initialUpdate();
 
-    onValue(usersQuery, (docSnap) => {
-      updatePlayersFromObject(docSnap.val() || {}, setPlayers, uid);
+    function addListener() {
+      return onValue(usersQuery, (docSnap) => {
+        updatePlayersFromObject(docSnap.val() || {}, setPlayers, uid);
+      });
+    }
+    let unsubscribe = addListener();
+
+    window.addEventListener("beforeunload", () => {
+      unsubscribe();
+    });
+    setTimeout(() => {
+      unsubscribe();
+    }, 30 * 60 * 1000);
+
+    window.addEventListener("blur", () => {
+      unsubscribe();
+    });
+    window.addEventListener("focus", () => {
+      unsubscribe = addListener();
     });
   }, []);
 
