@@ -1,6 +1,6 @@
 import { useCookies } from "react-cookie";
 import { useEffect, useState } from "react";
-import GameRow from "./components/game-row/game-row";
+import Game from "./components/game/game";
 import Header from "./components/header/header";
 import Leaderboard from "./components/leaderboard/leaderboard";
 import "./App.scss";
@@ -14,8 +14,8 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-import firebaseConfig from "./components/game/helper";
-import { findDateDiff } from "./components/game-row/game-row-helper";
+import firebaseConfig from "./components/game/game-helper";
+import { findDateDiff } from "./components/game/game-helper";
 
 //HELLO THERE! If you are in my code, that means you know how to access it
 //through developer tools. This gives you access to a lot of things that you're
@@ -139,19 +139,10 @@ function App() {
       setLoading(false);
     }, 2000);
   }, []);
+
+  console.log(`${isUser} ${UID} ${loading}`);
   return (
-    <div
-      id="game"
-      onFocus={() => {
-        document.getElementById("game-container")?.focus();
-      }}
-      onMouseEnter={() => {
-        document.getElementById("game-container")?.focus();
-      }}
-      onClick={() => {
-        document.getElementById("game-container")?.focus();
-      }}
-    >
+    <div id="game">
       {onAuthStateChanged(auth, (user) => {
         if (user && user.email && user.email.includes("@chatham-nj.org")) {
           setLoading(false);
@@ -198,7 +189,7 @@ function App() {
         </svg>
       )}
       {isUser && UID && !loading && (
-        <GameRow
+        <Game
           db={db}
           uid={UID}
           setPlayToday={setPlayToday}
@@ -208,10 +199,10 @@ function App() {
       )}
       {isUser && isFinished && !loading && <Leaderboard uid={UID} db={db} />}
     </div>
-    // <>
-    //   <div className="renomessage"> Cougle is Under Renovations </div>
-    //   <div className="renomessage"> Check it out on 4/25</div>
-    // </>
+    /*     <>
+      <div className="renomessage"> Cougle is Under Renovations </div>
+      <div className="renomessage"> Check it out on 4/25</div>
+    </> */
   );
 }
 export default App;

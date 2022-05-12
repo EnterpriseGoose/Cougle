@@ -1,0 +1,50 @@
+@import "../../global/style/style-variables.scss";
+
+div, div:focus{
+  outline: none; //0px solid transparent;
+}
+
+#game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+#board {
+  font-size: 100vh;
+  display: flex;
+  padding: 10px;
+}
+
+#board-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-bottom: 5px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: auto;
+}
+
+.notification {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  pointer-events: none;
+  width: fit-content;
+  color: white;
+  background-color: #445f7a;
+  border-radius: 5px;
+  padding: 15px;
+}
+
+#game-notification {
+  z-index: 1000;
+}
+
+:host {
+  display: inline-block;
+}

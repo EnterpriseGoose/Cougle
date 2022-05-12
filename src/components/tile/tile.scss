@@ -1,0 +1,116 @@
+@import '../../global/style/style-variables.scss';
+
+:host {
+    display: inline-block;
+}
+
+.tile {
+    width: 2em;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 0.5em;
+    font-weight: bold;
+    vertical-align: middle;
+    box-sizing: border-box;
+    color: var(--tile-text-color);
+    text-transform: uppercase;
+    user-select: none;
+    border: 2px solid var(--color-tone-4);
+}
+
+.tile::before {
+    content: '';
+    display: inline-block;
+    padding-bottom: 100%;
+}
+
+.tile[data-state="tbd"] {
+  background-color: var(--color-tone-7);
+  border-color: var(--color-tone-3);
+  color: white;
+  -webkit-animation: flip 0.75s linear;
+  animation: flip 0.75s linear both;
+}
+.tile[data-state="correct"] {
+  --background-color: #52964c;
+}
+.tile[data-state="present"] {
+  --background-color: #b39b30;
+}
+.tile[data-state="absent"] {
+  --background-color: rgb(70, 70, 70);
+}
+
+@for $i from 2 through 6 {
+  .tile:nth-child(#{$i}) {
+    animation-delay: 0.4s * $i - 0.4s;
+  }
+}
+
+@keyframes flip {
+  0% {
+    -webkit-transform: rotateY(0);
+    transform: rotateY(0);
+    background-color: var(--color-tone-7);
+    border-color: var(--color-tone-3);
+    color: white;
+  }
+  50% {
+    -webkit-transform: rotateY(90deg);
+    transform: rotateY(90deg);
+    background-color: var(--color-tone-7);
+    border-color: var(--color-tone-3);
+    color: white
+  }
+  51% {
+    -webkit-transform: rotateY(90deg);
+    transform: rotateY(90deg);
+    background-color: var(--background-color);
+    border-color: rgba(0, 0, 0, 0);
+    color: rgb(228, 228, 228)
+  }
+  100% {
+    -webkit-transform: rotateY(0);
+    transform: rotateY(0);
+    background-color: var(--background-color);
+    border-color: rgba(0, 0, 0, 0);
+    color: rgb(228, 228, 228)
+  }
+}
+
+.row[data-state="invalid"] {
+  animation-name: shake;
+  animation-duration: 600ms;
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translateX(-1px);
+  }
+
+  20%,
+  80% {
+    transform: translateX(2px);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translateX(-4px);
+  }
+
+  40%,
+  60% {
+    transform: translateX(4px);
+  }
+}
+
+/* Allow tiles to be smaller on small screens */
+/*@media (max-height: 600px) {
+    .tile {
+        font-size: 2em;
+        line-height: 1em;
+    }
+}*/
